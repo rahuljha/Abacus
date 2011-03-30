@@ -1,19 +1,41 @@
 varStruct = function() {
+    this.varId = null;
     this.varInit = null;
     this.varCol = null;
     this.varMode = null;
+    
 }
 
 Abacus = function() {
     this.varList = {};
     this.outputCell = "";
-    this.cellId = "";
+    this.funCellId = "";
 }
+
+Abacus.prototype.update = function() {
+    programText = $('#'+this.funCellId).text();
+
+    env = new Environment();
+    varNameList = [];
+    varValList = [];
+    for(var varName in this.varList) {
+	varNameList.push(varName);
+	varValList.push(new Const($('#'+this.varList[varName].varId).text().split("=")[1]));
+    }
+
+    func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
+    sel = new Select(func, [new FuncArg2(varValList)]);
+    
+    $("#"+this.outputCell).text(sel.value(env));
+};
+    
 
 Abacus.prototype.makeFun = function() {
     var _this = this;
     $(".jSheetCellHighighted").each(function(index) {
 	$(this).addClass("abacusFunctionCell");
+	_this.funCellId = $(this).attr("id");
+
 	programText = $(this).text();
 	env = new Environment();
 //func = ssParser.parse('function f2c(f) { return (f-32)/1.8; }');
@@ -51,6 +73,7 @@ Abacus.prototype.makeFunArg = function() {
 
 	varListEntry = new varStruct();
 	varListEntry.varInit = varInit;
+	varListEntry.varId = $(this).attr("id");
 	_this.varList[varName] = varListEntry;
     });
 }
@@ -73,7 +96,6 @@ Abacus.prototype.makeOutputCell = function() {
     $(".jSheetCellHighighted").each(function(index) {
 	$(this).addClass("abacusOutputCell");
 	_this.outputCell = $(this).attr("id");
-	alert(_this.toSource());
     });
 }
 
@@ -82,7 +104,6 @@ Abacus.prototype.remOutputCell = function() {
     $(".jSheetCellHighighted").each(function(index) {
 	$(this).removeClass("abacusOutputCell");
 	_this.outputCell = "";
-	alert(_this.toSource());
     });
 }
 
