@@ -2,8 +2,7 @@ varStruct = function() {
     this.varId = null;
     this.varInit = null;
     this.varCol = null;
-    this.varMode = null;
-    
+    this.varMode = null; //equals either "literal" or "column"
 }
 
 Abacus = function() {
@@ -20,13 +19,18 @@ Abacus.prototype.update = function() {
     varValList = [];
     for(var varName in this.varList) {
 	varNameList.push(varName);
-	varValList.push(new Const($('#'+this.varList[varName].varId).text().split("=")[1]));
+	varVal = $('#'+this.varList[varName].varId).text().split("=")[1];
+	varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
+	varValList.push(new Const(varVal));
     }
 
-    func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
-    sel = new Select(func, [new FuncArg2(varValList)]);
-    
-    $("#"+this.outputCell).text(sel.value(env));
+    try {
+	func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
+	sel = new Select(func, [new FuncArg2(varValList)]);
+	$("#"+this.outputCell).text(sel.value(env));
+    } catch(err) {
+	alert(err);
+    }
 };
     
 
@@ -43,14 +47,20 @@ Abacus.prototype.makeFun = function() {
 	varValList = [];
 	for(var varName in _this.varList) {
 	    varNameList.push(varName);
-	    varValList.push(new Const(_this.varList[varName].varInit));
+	    varVal = _this.varList[varName].varInit;
+	    varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
+	    varValList.push(new Const(varVal));
 	}
 
-	func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
-//	args = [new Const(42), new Const(0.1)];
-	sel = new Select(func, [new FuncArg2(varValList)]);
-//	args[0] = new Const(22);
-	$("#"+_this.outputCell).text(sel.value(env));
+	try {
+	    func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
+	    //	args = [new Const(42), new Const(0.1)];
+	    sel = new Select(func, [new FuncArg2(varValList)]);
+	    //	args[0] = new Const(22);
+	    $("#"+_this.outputCell).text(sel.value(env));
+	} catch(err) {
+	    alert(err);
+	}
     });
     
 }
@@ -72,9 +82,22 @@ Abacus.prototype.makeFunArg = function() {
 	varInit = vals[1];
 
 	varListEntry = new varStruct();
-	varListEntry.varInit = varInit;
 	varListEntry.varId = $(this).attr("id");
+
+	var colExpRegex = /\[([A-Z])\]/;
+
+	regexRes = colExpRegex.exec(varInit);
+
+	if(!regexRes) {
+	    varListEntry.varInit = varInit;
+	    varListEntry.varMode = "literal";
+	} else {
+	    varListEntry.varCol = regexRes[1];
+	    varListEntry.varMode = "column";
+	}
+
 	_this.varList[varName] = varListEntry;
+
     });
 }
 
