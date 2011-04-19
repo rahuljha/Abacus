@@ -6,6 +6,7 @@ varStruct = function() {
     this.varInit = null;
     this.varCol = null;
     this.varMode = null; //equals either "literal" or "column"
+    this.varUnit = null;
 }
 
 Abacus = function() {
@@ -13,6 +14,7 @@ Abacus = function() {
     this.outputCell = "";
     this.outputCellCol = "";
     this.funCellId = "";
+    this.outputUnit = "";
 }
 
 Abacus.prototype.update = function() {
@@ -23,13 +25,15 @@ Abacus.prototype.update = function() {
     varValList = [];
     for(var varName in this.varList) {
 	varNameList.push(varName);
-	varValList.push(new Const($('#'+this.varList[varName].varId).text().split("=")[1]));
+	varValList.push(new Const($('#'+this.varList[varName].varId).text().split("=")[1], new Unit([['meter',1]])));
     }
 
     func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
     sel = new Select(func, [new FuncArg2(varValList)]);
     
-    $("#"+this.outputCell).text(sel.value(env));
+    var outputVal = sel.value(env);
+    $("#"+this.outputCell).text(outputVal.raw());
+//    alert(outputVal.type);
 };
     
 
@@ -41,13 +45,6 @@ Abacus.prototype.makeFun = function() {
 
 	programText = $(this).text();
 	env = new Environment();
-
-//	varNameList = [];
-//	varValList = [];
-
-    //check each input variable
-    //if any variable is a column name confirm output is a column name
-    //push 
 
 	calMode = "literal";
     
@@ -66,20 +63,20 @@ Abacus.prototype.makeFun = function() {
 	outputCells = new Array();
 
 	if(calMode == "literal") {
+	    varNameList = new Array();
+	    varValList = new Array();
+
 	    for(var varName in _this.varList) {
-			    
-		varNameList = new Array();
-		varValList = new Array();
 
 		varNameList.push(varName);
 		varVal = _this.varList[varName].varInit;
 		varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
-		varValList.push(new Const(varVal));
-
-		inputVals.push(varValList);
+		varValList.push(new Const(varVal, new Unit([['meter',1]])));
 	    }
 
-	outputCells.push(_this.outputCell);
+	    inputVals.push(varValList);
+
+	    outputCells.push(_this.outputCell);
 
 	} else {
 	    
@@ -100,7 +97,7 @@ Abacus.prototype.makeFun = function() {
 		    if(_this.varList[varName].varMode.toString() == "literal") {
 			varVal = _this.varList[varName].varInit;
 			varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
-			varValList.push(new Const(varVal));
+			varValList.push(new Const(varVal, new Unit([['meter',1]])));
 		    } else {
 			colAlpha = _this.varList[varName].varCol;
 			colNo = colAlpha.charCodeAt(0);
@@ -112,7 +109,7 @@ Abacus.prototype.makeFun = function() {
 			}
 
 			varNameList.push(varName);
-			varValList.push(new Const(varCellVal));
+			varValList.push(new Const(varCellVal, new Unit([[_this.varList[varName].varUnit,1]])));
 		    }
 		}
 
@@ -132,19 +129,28 @@ Abacus.prototype.makeFun = function() {
 
 	}
 
-	alert(inputVals.toSource());
-	alert(outputCells.toSource());
+//	alert(inputVals.toSource());
+//	alert(outputCells.toSource());
 
 	try {
-	    func = new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(new Environment());
+
+	    new FuncDecl('temp', varNameList, ssParser.parse(programText)).value(env);
 
 	    for(var i=0; i< inputVals.length; i++) {
 
 		varVal = inputVals[i];
-		varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
+//		varVal = isNaN(varVal) ? varVal : parseFloat(varVal);
 
-		sel = new Select(func, [new FuncArg2(varVal)]);
-		$("#"+outputCells[i]).text(sel.value(env));
+		var sel = new Select(env.lookup('temp'), [new FuncArg2(varVal)]);
+
+		v = sel.value(env);
+
+		if(calMode == "column" && v.type != _this.outputUnit) {
+		    alert("Error, Unit mismatch between input and output!");
+		}
+
+		$("#"+outputCells[i]).text(v.raw());
+		
 	    }
 	} catch(err) {
 	    alert(err);
@@ -182,9 +188,10 @@ Abacus.prototype.makeFunArg = function() {
 	} else {
 	    varListEntry.varCol = regexRes[1];
 	    varListEntry.varMode = "column";
+	    varListEntry.varUnit = varInit.split(":")[1];
 	}
 
-	alert(varListEntry.toSource());
+//	alert(varListEntry.toSource());
 	_this.varList[varName] = varListEntry;
 
     });
@@ -213,9 +220,10 @@ Abacus.prototype.makeOutputCell = function() {
 
 	if(regexRes) {
 	    _this.outputCellCol = regexRes[1];
+	    _this.outputUnit = $(this).text().split(":")[1];
 	}
 
-	alert(_this.toSource());
+//	alert(_this.toSource());
     });
 }
 
