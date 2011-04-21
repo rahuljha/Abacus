@@ -188,7 +188,7 @@ significant interest from the programming languages community. \cite{forms/3} ex
  great detail and present a very sophisticated programming environment built around the spreadsheet
 model. \cite{Wakeling:2007:SFP:1194875.1194878} and \cite{Sestoft} explore functional abstraction and modularity
 in spreadsheets. Other work has focused on reducing spreadsheet errors (\cite{Coblenz05usingobjects} \cite{Panko98whatwe}) using different
-techniques. Using types for units has also been explored \cite{DBLP:conf/cefp/Kennedy09}. 
+techniques. Using types for units has also been explored by \cite{DBLP:conf/cefp/2009}.
 
 In Abacus, we wanted to bring together some of these ideas together into a functional implementation. The main contributions of this work are:
 
@@ -375,34 +375,24 @@ value, and a way to construct a value with given units.
 Units are checked when a value is stored back into a cell.
 
 \section{Related work}
-Units as typing paper by Kennedy presents the major ideas used for
-doing type checking with units.\cite{DBLP:conf/cefp/Kennedy09}
 
-Forms/3
+Forms/3 \cite{forms/3} is a complete programming framework using the ideas of spreadsheets and cells. It provides a sophisticated programming model with a lot of power. Users can create arbitrary objects using cells as the basic building blocks and then define operations on them. However, the high learning curve for the system might be a deterrent in using it for practical applications. 
 
-Rahul's papers on visual programming?
+Sestoft \cite{Sestoft} introduces the idea of function sheets in spreadsheets. He provides a nice visual representation and talks about recursive and higher-order spreadsheets. However, the function sheets in his framework are separately stored from the data. 
 
-Prograph?
+Wakeling \cite{Wakeling:2007:SFP:1194875.1194878} uses ideas from functional programming to provide programmability in Microsft Excel. It allows users to define Haskell functions, to use these functions in formulae, and to evaluate these formulae in spreadsheets. 
+
+\cite{DBLP:conf/cefp/2009} by Kennedy presents the major ideas used for doing type checking with units.
 
 \section{Future work}
-arbitrary cells in formulas instead of all values from same row
 
-small physical sections of cells
+We are looking at several directions of extending the work.
 
-conversions of units (e.g. meters to feet)
+First, there are many things that can be added to the visual interface. One is to add the ability to create independent function table within the sheet that are not linked to the other cells. It would be good to have some mechanism to link functions together and create higher level abstractions. Another interesting idea would be to add the ability to create classes and objects.
 
-unit aliases (m = meter, Newton = $kg-m/s^2$)
+In the language and type systems itself, we can add automatic conversion of units. So for example, when adding meters to feet, both values should be normalized to a single unit and the results should be reported in that. We can also have unit aliases, for example, Newton can be an alias for $kg-m/s^2$. We can integrate static type checking into the system in a limited way for fundamental types like Number, Boolean, string, array etc. 
 
-static type checking for number, Boolean, string, array, object, function
-
-Features not included in the current language but may need to be
-included to make the product useful include finding the length of a
-string, taking substrings of a string, and various mathematical
-functions such as ceiling, square root, and trigonometric functions.
-
-Error reporting should be improved. Currently when an unassigned
-variable is read, an exception is thrown. On errors, line numbers
-are not listed.
+Lastly, error reporting is an area where we can add a lot of improvement to the system. The error messages can be made much more helpful by adding more information about the reasons for the error and pointing to the relevant section of the code. 
 
 %% The \textit{proceedings} are the records of a conference.
 %% ACM seeks to give these conference by-products a uniform,
@@ -809,4 +799,5 @@ are not listed.
 %% it useful but please remember not to change it.
 \balancecolumns
 % That's all folks!
+
 \end{document}
