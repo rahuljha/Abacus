@@ -182,11 +182,25 @@ of making them easier to use correctly.
 \keywords{visual programming, spreadsheets, units}
 
 \section{Introduction}
-Intro goes here.\cite{forms/3}
+Spreadsheets are a popular technology for handling financial calculations and other tasks. The spreadsheets provide
+a programming environment that is very close to the functional programming paradigm. As such, it has received
+significant interest from the programming languages community. \cite{forms/3} explores the spreadsheet paradigm in
+ great detail and present a very sophisticated programming environment built around the spreadsheet
+model. \cite{Wakeling:2007:SFP:1194875.1194878} and \cite{Sestoft} explore functional abstraction and modularity
+in spreadsheets. Other work has focused on reducing spreadsheet errors (\cite{Coblenz05usingobjects} \cite{Panko98whatwe}) using different
+techniques. Using types for units has also been explored \cite{DBLP:conf/cefp/Kennedy09}. 
 
-Another idea not covered elsewhere is to equally emphasize code and
-data, instead of emphasizing code as in most programming languages or
-emphasizing data as in spreadsheets.
+In Abacus, we wanted to bring together some of these ideas together into a functional implementation. The main contributions of this work are:
+
+\begin{itemize}
+\item A visual framework for declaring functions within spreadsheets and linking them to variables and columns.
+\item A dynamic type checking system that detects and reports unit-based errors.
+\end{itemize}
+
+The first of these focuses on allowing users to have functional abstraction within their programs by declaring a function once and then being able to use it on several sets of data. We've focused on providing a clear separation between the data and code sections of a spreadsheet. We also provide a mechanism for testing user functions before they are applied to large sets of data.
+
+The second one focuses on ensuring that common spreadsheet errors are detected and reported appropriately. The complete system is described in section 3. The rest of the paper is organized as follows. Section 2 introduces the most common spreadsheet errors that we are trying to deal with. Section 3 introduces our language for spreadsheet programming and also explains the type system for units. Some related work is presented in Section 4. Section 5 concludes with some pointers to future work.
+
 
 \section{Spreadsheet Errors}
 The following are the common types of errors that occur in
